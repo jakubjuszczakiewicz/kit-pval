@@ -273,7 +273,7 @@ static size_t logA(const uint128_t * a)
     else
       end = i - 1;
   }
-  if (uint128_cmp(&digits[end].u128, a) <= 0)
+  if (uint128_cmp(&digits[start].u128, a) <= 0)
     return start + 2;
   return start + 1;
 }

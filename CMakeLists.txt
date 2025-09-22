@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1...3.5)
+cmake_minimum_required(VERSION 3.20)
 project(kit-pval C)
 
 set(SOURCE_FILES
@@ -13,6 +13,13 @@ if(IS_BIG_ENDIAN)
  add_definitions(-DBIG_ENDIAN)
 else()
  add_definitions(-DLITTLE_ENDIAN)
+endif()
+
+if(MINGW)
+add_definitions(-DUSE_WINAPI)
+add_definitions(-DIS_MINGW)
+elseif(WIN32)
+add_definitions(-DUSE_WINAPI)
 endif()
 
 check_type_size("unsigned __int128" U128S)

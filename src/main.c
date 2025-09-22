@@ -219,7 +219,7 @@ int print_pval(const char * str)
 void print_help(char * arg0)
 {
   fprintf(stderr, "Krypto-IT pval %s\n", kit_pval_version_str);
-  fprintf(stderr, "Usage: %s [-stnwxkMGTPEZY] decimal_number\n" \
+  fprintf(stderr, "Usage: %s [-stnwxkMGTPEZY] decimal_number [suffix]\n" \
                   "  -s  - SI prefixes (base = 1000 instead of 1024)\n" \
                   "  -t  - 0.000 instead of 0.00 format\n" \
                   "  -n  - append '\\n' on end (instead of nothing)\n" \
