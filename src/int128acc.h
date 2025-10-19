@@ -1,4 +1,4 @@
-/* Copyright (c) 2024 Krypto-IT Jakub Juszczakiewicz
+/* Copyright (c) 2025 Jakub Juszczakiewicz
  * All rights reserved.
  */
 
@@ -17,6 +17,7 @@ typedef uint32_t uint128_t[4];
 
 #endif
 
+size_t uint128_logA(const uint128_t * a);
 size_t uint128_import_dec_str(uint128_t * out, const char * in);
 void uint128_export_dec_str(char * out, const uint128_t * in);
 uint32_t uint128_div_mod_im(uint128_t * out, const uint128_t * in, uint32_t b);

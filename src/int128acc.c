@@ -1,4 +1,4 @@
-/* Copyright (c) 2024 Krypto-IT Jakub Juszczakiewicz
+/* Copyright (c) 2025 Jakub Juszczakiewicz
  * All rights reserved.
  */
 
@@ -11,6 +11,7 @@ union {
 } digits[] =
 {
 #ifdef BIG_ENDIAN
+  { .u32 = { 0x00000000, 0x00000000, 0x00000000, 0x00000000 } },
   { .u32 = { 0x00000000, 0x00000000, 0x00000000, 0x0000000A } },
   { .u32 = { 0x00000000, 0x00000000, 0x00000000, 0x00000064 } },
   { .u32 = { 0x00000000, 0x00000000, 0x00000000, 0x000003E8 } },
@@ -50,6 +51,7 @@ union {
   { .u32 = { 0x0785EE10, 0xD5DA46D9, 0x00F436A0, 0x00000000 } },
   { .u32 = { 0x4B3B4CA8, 0x5A86C47A, 0x098A2240, 0x00000000 } },
 #else
+  { .u32 = { 0x00000000, 0x00000000, 0x00000000, 0x00000000 } },
   { .u32 = { 0x0000000A, 0x00000000, 0x00000000, 0x00000000 } },
   { .u32 = { 0x00000064, 0x00000000, 0x00000000, 0x00000000 } },
   { .u32 = { 0x000003E8, 0x00000000, 0x00000000, 0x00000000 } },
@@ -113,29 +115,33 @@ size_t uint128_import_dec_str(uint128_t * out, const char * in)
   return (ptr - in);
 }
 
-static size_t logA(uint128_t a)
+size_t uint128_logA(const uint128_t * a)
 {
   int start = 0;
   int end = digits_size;
 
   while (end > start) {
     size_t i = (end + start) / 2;
-    if (digits[i].u128 == a)
-      return i + 2;
-    if (digits[i].u128 < a)
+    if (digits[i].u128 == *a) {
+      return i + 1;
+    }
+    if ((digits[i].u128 < *a) && (digits[i + 1].u128 > *a))
+      return i + 1;
+    if (digits[i].u128 < *a)
       start = i + 1;
     else
       end = i - 1;
   }
-  if (digits[start].u128 <= a)
-    return start + 2;
+
+  if (start == digits_size)
+    return digits_size;
   return start + 1;
 }
 
 void uint128_export_dec_str(char * out, const uint128_t * in)
 {
   uint128_t a = *in;
-  char * out2 = out + logA(a);
+  char * out2 = out + uint128_logA(&a);
   *out2 = 0;
 
   do {
@@ -181,18 +187,18 @@ uint64_t uint128_lo64(const uint128_t * in)
 
 static void uint128_mul_add_im(uint128_t * val, uint32_t a, uint32_t b)
 {
-  uint64_t tmp = (uint64_t)(*val)[IDX(0, 4)];
+  uint64_t tmp = (uint64_t)((*val)[IDX(0, 4)]);
   tmp *= a;
   tmp += b;
   (*val)[IDX(0, 4)] = tmp & 0xFFFFFFFF;
   tmp >>= 32;
-  tmp += (*val)[IDX(1, 4)] * a;
+  tmp += (uint64_t)(*val)[IDX(1, 4)] * a;
   (*val)[IDX(1, 4)] = tmp & 0xFFFFFFFF;
   tmp >>= 32;
-  tmp += (*val)[IDX(2, 4)] * a;
+  tmp += (uint64_t)(*val)[IDX(2, 4)] * a;
   (*val)[IDX(2, 4)] = tmp & 0xFFFFFFFF;
   tmp >>= 32;
-  tmp += (*val)[IDX(3, 4)] * a;
+  tmp += (uint64_t)(*val)[IDX(3, 4)] * a;
   (*val)[IDX(3, 4)] = tmp & 0xFFFFFFFF;
 }
 
@@ -258,7 +264,7 @@ static int uint128_cmp(const uint128_t * a, const uint128_t * b)
   return 0;
 }
 
-static size_t logA(const uint128_t * a)
+size_t uint128_logA(const uint128_t * a)
 {
   int start = 0;
   int end = digits_size;
@@ -267,14 +273,17 @@ static size_t logA(const uint128_t * a)
     size_t i = (end + start) / 2;
     int c = uint128_cmp(&digits[i].u128, a);
     if (c == 0)
-      return i + 2;
+      return i + 1;
+    if ((uint128_cmp(&digits[i].u128, a) < 0) &&
+        (uint128_cmp(&digits[i + 1].u128, a) > 0))
+      return i + 1;
     if (c < 0)
       start = i + 1;
     else
       end = i - 1;
   }
-  if (uint128_cmp(&digits[start].u128, a) <= 0)
-    return start + 2;
+  if (start == digits_size)
+    return digits_size;
   return start + 1;
 }
 
@@ -282,7 +291,7 @@ void uint128_export_dec_str(char * out, const uint128_t * in)
 {
   uint128_t a;
   memcpy(a, in, sizeof(a));
-  char * out2 = out + logA(&a);
+  char * out2 = out + uint128_logA(&a);
   *out2 = 0;
 
   do {
@@ -309,7 +318,7 @@ uint32_t uint128_lo32(const uint128_t * in)
 
 uint64_t uint128_lo64(const uint128_t * in)
 {
-  return ((uint64_t)(*in)[IDX(1, 4)]) << 32 + (*in)[IDX(0, 4)];
+  return (((uint64_t)((*in)[IDX(1, 4)])) << 32) + (*in)[IDX(0, 4)];
 }
 
 #endif
