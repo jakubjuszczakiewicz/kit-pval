@@ -5,6 +5,7 @@
 #include "../src/int128acc.h"
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 #include "xprint.h"
 
 struct {
@@ -38,7 +39,7 @@ struct {
   { .a = 0x0000000000000000LLU, .b = 0x0040100401004010LLU },
   { .a = 0x000000000000021ELLU, .b = 0x19E0C9BAB2400000LLU },
   { .a = 0x000000000000152DLLU, .b = 0x02C7E14AF6800006LLU },
-#elifdef LITTLE_ENDIAN
+#else
   { .a = 0x0000000000000000LLU, .b = 0x0000000000000000LLU },
   { .a = 0x0000000000000001LLU, .b = 0x0000000000000000LLU },
   { .a = 0x0000000000000009LLU, .b = 0x0000000000000000LLU },
@@ -326,7 +327,8 @@ int test_uint128_lo64(void)
     uint64_t r = tests_07[i].func(&a);
     if (r != tests_07[i].result) {
       fprintf(stderr, "Test (07) %zu failed\n", i + 1);
-      fprintf(stderr, "%016llX\n%016llX\n", r, tests_07[i].result);
+      fprintf(stderr, "%016" PRIu64 "X\n%016" PRIu64 "X\n", r,
+          tests_07[i].result);
       return 1;
     }
   }
